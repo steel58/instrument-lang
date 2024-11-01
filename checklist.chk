@@ -1,0 +1,3 @@
+{"name":"Implement audio","info":"Using the rodio rust library (https://docs.rs/rodio/latest/rodio/) create playback system for .inst files","completed":false}
+{"name":"Define toml format","info":"Develop and describe a schema for how to outline the toml file and describe it in the README.md","completed":false}
+{"name":"Get toml data","info":"Get the playback data from the toml file and use that to influence the playback function","completed":false}
