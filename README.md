@@ -10,7 +10,7 @@ piece_name
 ||etc.
 
 # Basic Syntax
-A bar of music can contain as many instructions or notes as you would like as long as they abide by the time signature set in your expression.toml document. Currently, only treble and bass clefs are available and their declaration is shown below.
+A bar of music can contain as many instructions or notes as you would like as long as they abide by the time signature set in your expression.toml document. Currently, only treble and bass clefs are available and their declaration is shown below. A row of "=" should be above and below every line of music.
 
 ## Treble clef declaration:
 
