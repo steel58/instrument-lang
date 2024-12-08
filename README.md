@@ -103,15 +103,15 @@ While these basic rhythms are well and good, one can dot any note or rest to add
 Triplets are valuble to many pieces of music and as you compose you will doubtless feel the need to use triplets. The notation for eight-note triplets to half-note triplets are shown below on the treble clef. As before with dotted rhythms, the height of groupings does not matter. Additionally, the "3" is purely decorative.and is not necessary for interpretation.
 ```
    /\       eight note triplet          quarter note triplet        half note triplet
-   | \ | -----------3---------------|---------------------------|---------------------------||
-   | / |        _________           |    |@    |@    |@         |          3                ||
-   |/  | -------|---|---|-----------|----|-----|-----|----------|-----|----|---|------------||
-  /|   |      < |   |   |           |   <|     |     | >        |     |    |   |            ||
- / |   | -------|---|---|>----------|----|-----|-----|----------|-----|----|---|------------||
-|  |\  |       @|  @|  @|           |    |     |     |          |   <O|   O|  O|>           || 
- \ | | | ---------------------------|---------------------------|---------------------------||
-  \|/  |                            |          3                |                           || 
-/@ |   | ---------------------------|---------------------------|---------------------------||
+   | \ l -----------3---------------l---------------------------l---------------------------ll
+   | / l        _________           l    |@    |@    |@         l          3                ll
+   |/  l -------|---|---|-----------l----|-----|-----|----------l-----|----|---|------------ll
+  /|   l      < |   |   |           l   <|     |     | >        l     |    |   |            ll
+ / |   l -------|---|---|>----------l----|-----|-----|----------l-----|----|---|------------ll
+|  |\  l       @|  @|  @|           l    |     |     |          l   <O|   O|  O|>           ll 
+ \ | | l ---------------------------l---------------------------l---------------------------ll
+  \|/  l                            l          3                l                           ll 
+/@ |   l ---------------------------l---------------------------l---------------------------ll
 \_/
 
 ```

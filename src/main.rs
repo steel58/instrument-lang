@@ -1,73 +1,8 @@
-use std::{fs::File, iter::Enumerate, str::Lines};
-use regex::{Regex, Split};
+use std::{fs::File};
+use regex::{Regex};
 use std::io::prelude::*;
-use thiserror::Error;
-
-const BASS_CENTER: Note = Note {
-    acidental: Accidental::Natural,
-    note_name: "D",
-    octave: 3,
-};
-
-const TREBLE_CENTER: Note = Note {
-    acidental: Accidental::Natural,
-    note_name: "B",
-    octave: 5,
-};
-
-#[derive(Error, Debug)]
-enum ParsingError {
-    #[error("Invalid Staff Identifier at line {0}")]
-    InvalidStaffDeclaration(usize),
-}
-
-enum StaffType {
-    Treble,
-    Bass,
-}
-
-enum Beats {
-    ThirtySecond,
-    Sixteenth,
-    Eighth,
-    Quarter,
-    Half,
-    Whole,
-    DottedThirtySecond,
-    DottedSixteenth,
-    DottedEighth,
-    DottedQuarter,
-    DottedHalf,
-    DottedWhole,
-    EighthTriplet,
-    QuarterTriplet,
-    HalfTriplet,
-}
-
-enum Accidental {
-    Sharp,
-    Flat,
-    Natural,
-}
-
-struct Line {
-    clef_type: StaffType,
-    line_height: usize,
-    center_line: usize,
-    contents: Vec<Bar>,
-}
-
-struct Bar {
-    pitches: Vec<Note>,
-    durations: Vec<Beats>,
-    measure_number: usize,
-}
-
-struct Note {
-    acidental: Accidental,
-    note_name: &'static str,
-    octave: usize,
-}
+mod data_types;
+use crate::data_types::dt::*;
 
 
 fn main() {
@@ -123,7 +58,7 @@ fn get_tokenized_lines(lines: Vec<Vec<String>>) -> Result<Vec<Line>, ParsingErro
 
         let center_index = get_center_line(line, &found_clef);
 
-        let measures = match get_measures(line, measure_count) {
+        let measures = match get_measures(line, measure_count, &found_clef) {
             Ok(m) => m,
             Err(e) => return Err(e),
         };
@@ -145,12 +80,24 @@ fn get_tokenized_lines(lines: Vec<Vec<String>>) -> Result<Vec<Line>, ParsingErro
  * This function breaks a line into measures else it bricks the shit.
  *
  */
-fn get_measures(line: &Vec<String>, measure_count: usize) -> Result<Vec<Bar>, ParsingError> {
+fn get_measures(line: &Vec<String>, measure_count: usize, clef: &StaffType) -> Result<Vec<Bar>, ParsingError> {
     let new_measures = line.first().unwrap().match_indices('l').collect::<Vec<_>>().len();
-    Ok(Vec::new())
+    let mut measures: Vec<Vec<String>> = vec![Vec::new(); new_measures];
+    for l in line.iter() {
+        for (i, m) in l.split("l").enumerate() {
+            measures[i].push(m.to_string());
+        }
+    }
+
+    let bars: Result<Vec<Bar>, ParsingError> = measures.iter().enumerate()
+        .map(|(i, measure)| tokenize_bars(measure, measure_count + i, clef))
+        .collect();
+
+    bars
 }
 
-fn tokenize_bars(measure: &Vec<String>, measure_count: usize) -> Result<Bar, ParsingError> {
+fn tokenize_bars(measure: &Vec<String>, measure_count: usize, clef: &StaffType) -> Result<Bar, ParsingError> {
+    //GO THROUGH EACH STEP AND CHECK THE THINGS FOR PLACES THAT ARE GOOD
     Ok(Bar {
         pitches: Vec::new(),
         durations: Vec::new(),
