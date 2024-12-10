@@ -1,4 +1,4 @@
-use std::{fs::File};
+use std::{fs::File, isize, usize};
 use regex::{Regex};
 use std::io::prelude::*;
 mod data_types;
@@ -98,11 +98,96 @@ fn get_measures(line: &Vec<String>, measure_count: usize, clef: &StaffType) -> R
 
 fn tokenize_bars(measure: &Vec<String>, measure_count: usize, clef: &StaffType) -> Result<Bar, ParsingError> {
     //GO THROUGH EACH STEP AND CHECK THE THINGS FOR PLACES THAT ARE GOOD
+    let center = get_center_line(measure, clef);
+    let length = measure.first().unwrap().len();
+    let mut notes: Vec<Note> = Vec::new();
+    let mut durs: Vec<Beats> = Vec::new();
+
+    for line in measure.iter() {
+        if line.len() != length {
+            return Err(ParsingError::InvalidMeasureLenghts(measure_count));
+        }
+    }
+
+    for pos in 0..length {
+        let mut this_col: Vec<char> = Vec::new();
+        for line in measure.iter() {
+            this_col.push(line.chars().nth(pos).unwrap());
+        }
+
+        let mut note_height: Option<usize> = None;
+        if this_col.contains(&'|') {
+            let first = this_col.iter().position(|r| *r == '|').unwrap();
+            let last = this_col.len() - 1 - this_col.iter()
+                .rev().position(|r| *r == '|').unwrap();
+            if let Some(head) = measure.iter().nth(first).unwrap().chars().nth(pos -1) {
+                if head == '@' {
+                    note_height = Some(first);
+                }
+            }
+
+            if let Some(head) = measure.iter().nth(first).unwrap().chars().nth(pos + 1) {
+                if head == '@' {
+                    note_height = Some(first);
+                }
+            }
+
+            if let Some(head) = measure.iter().nth(last).unwrap().chars().nth(pos + 1) {
+                if head == '@' {
+                    note_height = Some(last);
+                }
+            }
+
+            if let Some(head) = measure.iter().nth(last).unwrap().chars().nth(pos - 1) {
+                if head == '@' {
+                    note_height = Some(last);
+                }
+            }
+
+            durs.push(Beats::Quarter);
+            if let Some(n) = note_height {
+                let offset = n - center;
+                
+            } else {
+
+            }
+
+        }
+    }
+
     Ok(Bar {
-        pitches: Vec::new(),
-        durations: Vec::new(),
+        pitches: notes,
+        durations: durs,
         measure_number: measure_count,
     })
+}
+
+fn calculate_note(offset: isize, clef: &StaffType) -> Note {
+    let note: &str;
+    let oct: &str;
+
+    let center_note: Note = match clef {
+        StaffType::Bass => BASS_CENTER,
+        StaffType::Treble => TREBLE_CENTER,
+    };
+
+    let next_index: isize = isize::try_from(NOTE_ORDER.iter()
+        .position(|&x| x == center_note.note_name)
+        .unwrap()).unwrap() - offset;
+
+    let mut octave_offset: isize = next_index / 7;
+
+    if next_index < 0 {
+        octave_offset -= 1;
+    }
+
+
+    Note { 
+        acidental: Accidental::Natural,
+        note_name: NOTE_ORDER[next_index as usize % 7],
+        octave: (center_note.octave as isize + octave_offset) as usize, 
+        rest: false,
+    }
 }
 
 

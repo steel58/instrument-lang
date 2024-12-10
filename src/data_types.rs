@@ -1,21 +1,29 @@
 pub mod dt {
+
     use thiserror::Error;
+
     pub const BASS_CENTER: Note = Note {
         acidental: Accidental::Natural,
         note_name: "D",
         octave: 3,
+        rest: false,
     };
 
     pub const TREBLE_CENTER: Note = Note {
         acidental: Accidental::Natural,
         note_name: "B",
         octave: 5,
+        rest: false,
     };
+
+    pub const NOTE_ORDER: [&str; 7] = ["A", "B", "C", "D", "E", "F", "G"];
 
 #[derive(Error, Debug)]
     pub enum ParsingError {
         #[error("Invalid Staff Identifier at line {0}")]
         InvalidStaffDeclaration(usize),
+        #[error("Invalid Measure Lengths in measure {0}")]
+        InvalidMeasureLenghts(usize),
     }
 
     pub enum StaffType {
@@ -64,6 +72,7 @@ pub mod dt {
         pub acidental: Accidental,
         pub note_name: &'static str,
         pub octave: usize,
+        pub rest: bool,
     }
 
 }
