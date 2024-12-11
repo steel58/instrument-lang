@@ -120,6 +120,8 @@ fn tokenize_bars(measure: &Vec<String>, measure_count: usize, center: usize, cle
                 this_col.push(line.chars().nth(pos).unwrap());
             }
 
+            //This is ugly and only works on quarternotes we shoudl build a function
+            //to find the next note and beat so we can make this legible and extensible
             let mut note_height: Option<isize> = None;
             if this_col.contains(&'|') {
                 let first = this_col.iter().position(|r| *r == '|').unwrap();
@@ -169,6 +171,11 @@ fn tokenize_bars(measure: &Vec<String>, measure_count: usize, center: usize, cle
         })
     }
 
+/*
+ * This will find both the octave and the letter note of a note based on how many
+ * lines above or below the middle line.
+ * Negative is above the middle line positive is below.
+ */
 fn calculate_note(offset: isize, clef: &StaffType) -> Note {
     let center_note: Note = match clef {
         StaffType::Bass => BASS_CENTER,
@@ -181,6 +188,9 @@ fn calculate_note(offset: isize, clef: &StaffType) -> Note {
 
     let mut octave_offset: isize = next_index / 7;
 
+    //This modification is to account for the fact that if we drop below 0 we
+    //will have 1 fewer octave offset based on the equation.
+    //This does not happen if we land squarely on the 0th note ("A")
     if next_index < 0 && modulo(next_index, 7) != 0{
         octave_offset -= 1;
     }
@@ -194,6 +204,11 @@ fn calculate_note(offset: isize, clef: &StaffType) -> Note {
     }
 }
 
+/*
+ * This is a helper function to find the lowest possible positive equivalence.
+ * Assuming the output is 'z' we could write the output of this as the LaTex
+ *                  x \equiv z (mod y)
+ */
 fn modulo(x: isize, y: usize) -> usize {
     if x >= 0 {
         x as usize % y
