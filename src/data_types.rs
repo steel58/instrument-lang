@@ -24,13 +24,19 @@ pub mod dt {
         InvalidStaffDeclaration(usize),
         #[error("Invalid Measure Lengths in measure {0}")]
         InvalidMeasureLenghts(usize),
+        #[error("Invalid Note Declatation in measure {0} at {1}")]
+        InvalidNoteDeclaration(usize, usize),
+        #[error(r#"Failed to read file: "{0}""#)]
+        FailedFileRead(String),
     }
 
+    #[derive(Debug)]
     pub enum StaffType {
         Treble,
         Bass,
     }
 
+    #[derive(Clone, Debug, PartialEq)]
     pub enum Beats {
         ThirtySecond,
         Sixteenth,
@@ -49,13 +55,14 @@ pub mod dt {
         HalfTriplet,
     }
 
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Clone, Debug, PartialEq, Eq)]
     pub enum Accidental {
         Sharp,
         Flat,
         Natural,
     }
 
+    #[derive(Debug)]
     pub struct Line {
         pub clef_type: StaffType,
         pub line_height: usize,
@@ -63,13 +70,14 @@ pub mod dt {
         pub contents: Vec<Bar>,
     }
 
+    #[derive(Debug)]
     pub struct Bar {
         pub pitches: Vec<Note>,
         pub durations: Vec<Beats>,
         pub measure_number: usize,
     }
 
-    #[derive(Debug)]
+    #[derive(Clone, Debug)]
     pub struct Note {
         pub accidental: Accidental,
         pub note_name: &'static str,
@@ -91,4 +99,15 @@ pub mod dt {
         }
     }
 
+    impl PartialEq for Line {
+        fn eq(&self, other: &Self) -> bool {
+            self.contents == other.contents
+        }
+    }
+
+    impl PartialEq for Bar {
+        fn eq(&self, other: &Self) -> bool {
+            self.pitches == other.pitches && self.durations == other.durations
+        }
+    }
 }
