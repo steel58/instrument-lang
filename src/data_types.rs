@@ -3,14 +3,14 @@ pub mod dt {
     use thiserror::Error;
 
     pub const BASS_CENTER: Note = Note {
-        acidental: Accidental::Natural,
+        accidental: Accidental::Natural,
         note_name: "D",
         octave: 3,
         rest: false,
     };
 
     pub const TREBLE_CENTER: Note = Note {
-        acidental: Accidental::Natural,
+        accidental: Accidental::Natural,
         note_name: "B",
         octave: 5,
         rest: false,
@@ -49,6 +49,7 @@ pub mod dt {
         HalfTriplet,
     }
 
+    #[derive(Debug, PartialEq, Eq)]
     pub enum Accidental {
         Sharp,
         Flat,
@@ -68,11 +69,26 @@ pub mod dt {
         pub measure_number: usize,
     }
 
+    #[derive(Debug)]
     pub struct Note {
-        pub acidental: Accidental,
+        pub accidental: Accidental,
         pub note_name: &'static str,
         pub octave: usize,
         pub rest: bool,
+    }
+
+    impl PartialEq for Note {
+        fn eq(&self, other: &Self) -> bool {
+            if self.rest && other.rest { return true; }
+            if self.rest != other.rest { return false; }
+
+            if self.accidental == other.accidental {
+                return self.note_name == other.note_name 
+                    && self.octave == other.octave;
+            }
+
+            false
+        }
     }
 
 }

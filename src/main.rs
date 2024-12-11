@@ -163,9 +163,6 @@ fn tokenize_bars(measure: &Vec<String>, measure_count: usize, clef: &StaffType) 
 }
 
 fn calculate_note(offset: isize, clef: &StaffType) -> Note {
-    let note: &str;
-    let oct: &str;
-
     let center_note: Note = match clef {
         StaffType::Bass => BASS_CENTER,
         StaffType::Treble => TREBLE_CENTER,
@@ -177,16 +174,29 @@ fn calculate_note(offset: isize, clef: &StaffType) -> Note {
 
     let mut octave_offset: isize = next_index / 7;
 
-    if next_index < 0 {
+    if next_index < 0 && modulo(next_index, 7) != 0{
         octave_offset -= 1;
     }
 
 
     Note { 
-        acidental: Accidental::Natural,
-        note_name: NOTE_ORDER[next_index as usize % 7],
+        accidental: Accidental::Natural,
+        note_name: NOTE_ORDER[modulo(next_index, 7)],
         octave: (center_note.octave as isize + octave_offset) as usize, 
         rest: false,
+    }
+}
+
+fn modulo(x: isize, y: usize) -> usize {
+    if x >= 0 {
+        x as usize % y
+    } else {
+        let mut equiv = x;
+        while equiv < 0 {
+            equiv += y as isize;
+        }
+
+        equiv as usize % y
     }
 }
 
@@ -287,3 +297,87 @@ fn get_center_line(line: &Vec<String>, clef_type: &StaffType) -> usize {
 
     center_index
 }
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calculate_note_positive() {
+        let a4 = Note {
+            accidental: Accidental::Natural,
+            note_name: "A",
+            octave: 4,
+            rest: false,
+        };
+
+        let a3 = Note {
+            accidental: Accidental::Natural,
+            note_name: "A",
+            octave: 3,
+            rest: false,
+        };
+
+        let a5 = Note {
+            accidental: Accidental::Natural,
+            note_name: "A",
+            octave: 5,
+            rest: false,
+        };
+
+        let f4 = Note {
+            accidental: Accidental::Natural,
+            note_name: "F",
+            octave: 4,
+            rest: false,
+        };
+
+        assert_eq!(a5, calculate_note(1, &StaffType::Treble));
+        assert_eq!(f4, calculate_note(3, &StaffType::Treble));
+        assert_eq!(a4, calculate_note(8, &StaffType::Treble));
+        assert_eq!(a3, calculate_note(15, &StaffType::Treble));
+    }
+
+    #[test]
+    fn test_calculate_note_negative() {
+        let d3 = Note {
+            accidental: Accidental::Natural,
+            note_name: "D",
+            octave: 6,
+            rest: false,
+        };
+
+        let a6 = Note {
+            accidental: Accidental::Natural,
+            note_name: "A",
+            octave: 6,
+            rest: false,
+        };
+    
+        let c5 = Note {
+            accidental: Accidental::Natural,
+            note_name: "C",
+            octave: 5,
+            rest: false,
+        };
+
+        assert_eq!(d3, calculate_note(-9, &StaffType::Treble));
+        assert_eq!(a6, calculate_note(-6, &StaffType::Treble));
+        assert_eq!(c5, calculate_note(-1, &StaffType::Treble));
+    }
+
+    #[test]
+    fn test_calculate_note() {
+        let b5 = Note {
+            accidental: Accidental::Natural,
+            note_name: "B",
+            octave: 5,
+            rest: false,
+        };
+
+        assert_eq!(b5, calculate_note(0, &StaffType::Treble));
+    }
+}
+
