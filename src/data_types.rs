@@ -18,7 +18,7 @@ pub mod dt {
 
     pub const NOTE_ORDER: [&str; 7] = ["A", "B", "C", "D", "E", "F", "G"];
 
-#[derive(Error, Debug)]
+    #[derive(Error, Debug)]
     pub enum ParsingError {
         #[error("Invalid Staff Identifier at line {0}")]
         InvalidStaffDeclaration(usize),
@@ -85,6 +85,11 @@ pub mod dt {
         pub rest: bool,
     }
 
+    pub struct TimeSignature {
+        pub beats: usize,
+        pub beat_size: Beats,
+    }
+
     impl PartialEq for Note {
         fn eq(&self, other: &Self) -> bool {
             if self.rest && other.rest { return true; }
@@ -108,6 +113,46 @@ pub mod dt {
     impl PartialEq for Bar {
         fn eq(&self, other: &Self) -> bool {
             self.pitches == other.pitches && self.durations == other.durations
+        }
+    }
+
+    impl Beats {
+        pub fn equivalent(&self, other: Beats, num :usize) -> bool {
+            match self {
+                Self::Eighth => match (other, num) {
+                    (Self::ThirtySecond, 4) => true,
+                    (Self::Sixteenth, 2) => true,
+                    _ => false,
+                },
+                Self::Quarter => match (other, num) {
+                    (Self::EighthTriplet, 3) => true,
+                    (Self::Eighth, 2) => true,
+                    (Self::Sixteenth, 4) => true,
+                    (Self::ThirtySecond, 8) => true,
+                    _ => false,
+                },
+                Self::Half => match (other, num) {
+                    (Self::EighthTriplet, 6) => true,
+                    (Self::QuarterTriplet, 3) => true,
+                    (Self::Quarter, 2) => true,
+                    (Self::Eighth, 4) => true,
+                    (Self::Sixteenth, 8) => true,
+                    (Self::ThirtySecond, 16) => true,
+                    _ => false,
+                },
+                Self::Whole => match (other, num) {
+                    (Self::EighthTriplet, 12) => true,
+                    (Self::QuarterTriplet, 6) => true,
+                    (Self::HalfTriplet, 3) => true,
+                    (Self::Half, 2) => true,
+                    (Self::Quarter, 4) => true,
+                    (Self::Eighth, 8) => true,
+                    (Self::Sixteenth, 16) => true,
+                    (Self::ThirtySecond, 32) => true,
+                    _ => false,
+                },
+                _ => false,
+            }
         }
     }
 }
