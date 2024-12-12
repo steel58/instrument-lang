@@ -101,6 +101,23 @@ fn get_measures(line: &Vec<String>, measure_count: usize, center: usize, clef: &
         bars
     }
 
+fn find_tail(line: &String, head_idx: usize) -> isize {
+    let mut tail_side = 0;
+    if let Some(tail) = line.chars().nth(head_idx - 1) {
+            if tail == '|' {
+                tail_side = -1;
+            }
+    }
+
+    if let Some(tail) = line.chars().nth(head_idx + 1) {
+            if tail == '|' {
+                tail_side = 1;
+            }
+    }
+
+    tail_side
+}
+
 fn tokenize_bars(measure: &Vec<String>, measure_count: usize, center: usize, clef: &StaffType) 
     -> Result<Bar, ParsingError> {
         //GO THROUGH EACH STEP AND CHECK THE THINGS FOR PLACES THAT ARE GOOD
@@ -117,50 +134,26 @@ fn tokenize_bars(measure: &Vec<String>, measure_count: usize, center: usize, cle
         for pos in 0..length {
             let mut this_col: Vec<char> = Vec::new();
             for line in measure.iter() {
-                this_col.push(line.chars().nth(pos).unwrap());
+                if let Some(c) = line.chars().nth(pos) {
+                    if c == '@' {
+                        find_tail(line, pos);
+                    }
+                    if c == 'O' {
+                        find_tail(line, pos);
+                    }
+                }
             }
 
             //This is ugly and only works on quarternotes we shoudl build a function
             //to find the next note and beat so we can make this legible and extensible
             let mut note_height: Option<isize> = None;
-            if this_col.contains(&'|') {
-                let first = this_col.iter().position(|r| *r == '|').unwrap();
-                let last = this_col.len() - 1 - this_col.iter()
-                    .rev().position(|r| *r == '|').unwrap();
-                if let Some(head) = measure.iter().nth(first).unwrap().chars().nth(pos -1) {
-                    if head == '@' {
-                        note_height = Some(first as isize);
-                    }
-                }
+            if let Some(n) = note_height {
 
-                if let Some(head) = measure.iter().nth(first).unwrap().chars().nth(pos + 1) {
-                    if head == '@' {
-                        note_height = Some(first as isize);
-                    }
-                }
+                let offset: isize = n - center as isize;
 
-                if let Some(head) = measure.iter().nth(last).unwrap().chars().nth(pos + 1) {
-                    if head == '@' {
-                        note_height = Some(last as isize);
-                    }
-                }
-
-                if let Some(head) = measure.iter().nth(last).unwrap().chars().nth(pos - 1) {
-                    if head == '@' {
-                        note_height = Some(last as isize);
-                    }
-                }
-
-                durs.push(Beats::Quarter);
-                if let Some(n) = note_height {
-
-                    let offset: isize = n - center as isize;
-
-                    notes.push(calculate_note(offset, clef));
-                } else {
-                    return Err(ParsingError::InvalidNoteDeclaration(measure_count, pos));
-                }
-
+                notes.push(calculate_note(offset, clef));
+            } else {
+                return Err(ParsingError::InvalidNoteDeclaration(measure_count, pos));
             }
         }
 
